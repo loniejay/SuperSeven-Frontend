@@ -167,6 +167,85 @@ export default function EditModal({ open, onClose, eventData, onUpdateSuccess }:
         loadData();
     }, [open, eventData, authLoading]);
 
+    const getAvailableStatusOptions = useCallback(() => {
+        // Owner can see all status options
+        if (user?.user_role === 'Owner') {
+            return statusOptions;
+        }
+
+        // Editor specific rules
+        if (user?.user_role === 'Editor') {
+            return statusOptions.filter(option => {
+                // Hide For Edit (3) completely for Editors
+                if (option.value === 3) return false;
+
+                // Can select Editing (4) only if current status is For Edit (3)
+                if (selectedStatus === 3 && option.value === 4) return true;
+                
+                // Can select For Release (5) only if current status is Editing (4)
+                if (selectedStatus === 4 && option.value === 5) return true;
+                
+                // Can go back one step in workflow
+                if (selectedStatus === 5 && option.value === 4) return true; // For Release → Editing
+                
+                return false;
+            });
+        }
+
+        // Photographer can only select Uploaded (2)
+        if (user?.user_role === 'Photographer') {
+            return statusOptions.filter(option => option.value === 2);
+        }
+
+        return [];
+    }, [user?.user_role, selectedStatus]);
+
+    const isStatusDisabled = (statusValue: number) => {
+        // Common workflow progression rules
+        if (selectedStatus === 0) return statusValue !== 1 && statusValue !== 0;
+        if (selectedStatus === 1) return statusValue !== 2 && statusValue !== 1 && statusValue !== 0;
+        if (selectedStatus === 2) return statusValue !== 3 && statusValue !== 2 && statusValue !== 1;
+        if (selectedStatus === 3) return statusValue !== 4 && statusValue !== 3 && statusValue !== 2;
+        if (selectedStatus === 4) return statusValue !== 5 && statusValue !== 4 && statusValue !== 3;
+        if (selectedStatus === 5) return statusValue !== 6 && statusValue !== 5 && statusValue !== 4;
+        if (selectedStatus === 6) return !(statusValue === 5 || statusValue === 6);
+
+        return false;
+    };
+
+    const isUpdateDisabled = useCallback(() => {
+        if (loading || !bookingDetails) {
+            return true;
+        }
+
+        // Disable if booking is already completed
+        if (bookingDetails.booking_workload_status === 'Completed') {
+            return true;
+        }
+
+        // Non-owners cannot submit when status is For Edit (3)
+        if (user?.user_role !== 'Owner' && selectedStatus === 3) {
+            return true;
+        }
+
+        // Editor specific rules
+        if (user?.user_role === 'Editor') {
+            const currentStatusNumber = statusStringToNumberMap[bookingDetails.booking_workload_status];
+            return !(
+            (selectedStatus === 4 && currentStatusNumber === 3) || // For Edit → Editing
+            (selectedStatus === 5 && currentStatusNumber === 4)    // Editing → For Release
+            );
+        }
+
+        // Photographer can only submit Uploaded (2)
+        if (user?.user_role === 'Photographer') {
+            return selectedStatus !== 2;
+        }
+
+        // Default case
+        return selectedStatus === 0;
+    }, [loading, bookingDetails, selectedStatus, user?.user_role]);
+
     const handleAssignedClick = () => setIsDropdownOpen(prev => !prev);
     const handleStatusClick = () => setIsStatusDropdownOpen(prev => !prev);
 
@@ -328,54 +407,24 @@ export default function EditModal({ open, onClose, eventData, onUpdateSuccess }:
                     
                     {isStatusDropdownOpen && (
                         <Box className="dropdown-list">
-                            {statusOptions.map((status) => {
-                                // Determine if the option should be disabled
-                                let disabled = false;
-                                
-                                // Current status is Unassigned - only allow next status (Scheduled)
-                                if (selectedStatus === 0) {
-                                    disabled = status.value !== 1 && status.value !== 0;
-                                }
-                                // Current status is Scheduled - only allow Uploaded or back to Unassigned
-                                else if (selectedStatus === 1) {
-                                    disabled = status.value !== 2 && status.value !== 1 && status.value !== 0;
-                                }
-                                // Current status is Uploaded - only allow For Edit or back to Scheduled
-                                else if (selectedStatus === 2) {
-                                    disabled = status.value !== 3 && status.value !== 2 && status.value !== 1;
-                                }
-                                // Current status is For Edit - only allow Editing or back to Uploaded
-                                else if (selectedStatus === 3) {
-                                    disabled = status.value !== 4 && status.value !== 3 && status.value !== 2;
-                                }
-                                // Current status is Editing - only allow For Release or back to For Edit
-                                else if (selectedStatus === 4) {
-                                    disabled = status.value !== 5 && status.value !== 4 && status.value !== 3;
-                                }
-                                // Current status is For Release - only allow Completed or back to Editing
-                                else if (selectedStatus === 5) {
-                                    disabled = status.value !== 6 && status.value !== 5 && status.value !== 4;
-                                }
-                                // Current status is Completed - all options disabled except itself
-                                else if (selectedStatus === 6) {
-                                    disabled = !(status.value === 5 || status.value === 6);
-                                }
+                            {getAvailableStatusOptions().map((status) => {
+                                const disabled = isStatusDisabled(status.value);
 
                                 return (
                                     <Box
-                                        className={`row status-option ${disabled ? 'disabled' : ''}`}
-                                        key={status.id}
-                                        onClick={() => !disabled && handleStatusSelect(status.value)}
-                                        sx={{
-                                            opacity: disabled ? 0.5 : 1,
-                                            pointerEvents: disabled ? 'none' : 'auto',
-                                            cursor: disabled ? 'not-allowed' : 'pointer',
-                                            '&:hover': {
-                                                backgroundColor: disabled ? 'inherit' : '#f5f5f5'
-                                            }
-                                        }}
+                                    className={`row status-option ${disabled ? 'disabled' : ''}`}
+                                    key={status.id}
+                                    onClick={() => !disabled && handleStatusSelect(status.value)}
+                                    sx={{
+                                        opacity: disabled ? 0.5 : 1,
+                                        pointerEvents: disabled ? 'none' : 'auto',
+                                        cursor: disabled ? 'not-allowed' : 'pointer',
+                                        '&:hover': {
+                                        backgroundColor: disabled ? 'inherit' : '#f5f5f5'
+                                        }
+                                    }}
                                     >
-                                        <Typography component="span">{status.name}</Typography>
+                                    <Typography component="span">{status.name}</Typography>
                                     </Box>
                                 );
                             })}
@@ -505,16 +554,12 @@ export default function EditModal({ open, onClose, eventData, onUpdateSuccess }:
                     <Button 
                         variant="contained" 
                         onClick={handleUpdate}
-                        disabled={
-                            loading || 
-                            selectedStatus === 0 || 
-                            bookingDetails?.booking_workload_status === 'Completed'
-                        }
+                        disabled={isUpdateDisabled()}
                         sx={{
-                            backgroundColor: selectedStatus === 0 ? '#AAAAAA' : '#2BB673',
-                            pointerEvents: selectedStatus === 0 ? 'none' : 'auto',
+                            backgroundColor: isUpdateDisabled() ? '#AAAAAA' : '#2BB673',
+                            pointerEvents: isUpdateDisabled() ? 'none' : 'auto',
                             '&:hover': {
-                                backgroundColor: '#155D3A'
+                            backgroundColor: '#155D3A'
                             },
                             padding: '10px 15px',
                             fontSize: '14px',
