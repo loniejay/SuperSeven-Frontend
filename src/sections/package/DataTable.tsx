@@ -89,9 +89,16 @@ export default function DataTable({
                   <TableCell align='left'>{rowData.name}</TableCell>
                   <TableCell align="left">{rowData.price}</TableCell>
                   <TableCell align="left">
-                    {rowData.details.split(',').map((part: string, i: number) => (
-                        <div key={i}>{part.trim()}</div>
-                    ))}
+                    {rowData.details.split(',').map((part: string, i: number) => {
+                      const trimmedPart = part.trim();
+                      return (
+                        <div key={i}>
+                          {trimmedPart.length > 50 
+                            ? `${trimmedPart.substring(0, 50)}...` 
+                            : trimmedPart}
+                        </div>
+                      );
+                    })}
                   </TableCell>
                   <TableCell align="left">
                     <IconButton onClick={() => onDelete(row)}>

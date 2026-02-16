@@ -91,10 +91,10 @@ export function DashboardPackageCard() {
                     slidesPerView={1}
                     loop={true}
                     speed={2000}
-                    // autoplay={{
-                    //     delay: 5000,
-                    //     disableOnInteraction: false,
-                    // }}
+                    autoplay={{
+                        delay: 5000,
+                        disableOnInteraction: false,
+                    }}
                     pagination={{
                         clickable: true,
                     }}
@@ -108,7 +108,7 @@ export function DashboardPackageCard() {
                             spaceBetween: 30
                         },
                         1024: {
-                            slidesPerView: 4,
+                            slidesPerView: 5,
                             spaceBetween: 40
                         }
                     }}

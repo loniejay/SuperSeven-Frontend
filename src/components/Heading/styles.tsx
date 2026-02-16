@@ -1,5 +1,34 @@
 import { Box, styled} from "@mui/material";
 
+export const TotalBilling = styled(Box)`
+    display: flex;
+    flex-direction: row;
+    gap: 40px;
+`;
+
+export const BillingBox = styled(Box)`
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+
+    h3 {
+        font-family: 'Nunito', sans-serif;
+        font-size: 16px;
+        letter-spacing: 0.01071em;
+        line-height: 1.5rem;
+        text-transform: uppercase;
+        font-weight: 600;
+        color: rgba(0, 0, 0, 0.87);
+        margin: 0;
+    }
+
+    span {
+        display: inline-flex;
+        gap: 4px;
+        margin-left: 8px;
+    }
+`;
+
 export const Heading = styled(Box)`
     display: flex;
     flex-direction: row;

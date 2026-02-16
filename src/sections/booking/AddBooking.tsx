@@ -6,6 +6,7 @@ import { AddBookingContainer, BookingWrapper } from './styles';
 import { FormHeading } from '@/components/Heading/FormHeading';
 import { FormSection, FormField } from '@/types/field';
 import { Box, TextField, Typography, Button, CircularProgress, Alert } from '@mui/material';
+import { FilterBy } from '@/components/Filter';
 import { icons } from '@/icons';
 import Image from 'next/image';
 import { paths } from '@/paths';
@@ -39,9 +40,19 @@ export default function AddBookingComponent({ onCancel, packageId }: AddBookingC
   const { user } = useAuth();
   const userRole = user?.user_role;
   
+  const categoryTypeOptions = [
+    { value: '', label: 'Select category' },
+    { value: '0', label: 'Others' },
+    { value: '1', label: 'Birthday' },
+    { value: '2', label: 'Prenup' },
+    { value: '3', label: 'Debut' },
+    { value: '4', label: 'Wedding' },
+  ]
+  
   const [state, setState] = useState({
     isPackageDropdownOpen: false,
-    selectedPackage: "",
+    packageSearch: "",
+    selectedPackage: null as PackageProps | null,
     packages: [] as PackageProps[],
     addOns: [] as AddOnsProps[],
     selectedAddOns: [] as number[],
@@ -70,9 +81,16 @@ export default function AddBookingComponent({ onCancel, packageId }: AddBookingC
       contactNumber: "",
       bookingAddress: "",
       ceremonyTime: dayjs() as Dayjs,
+      categoryType: "",
     },
     errors: {} as Record<string, string>
   });
+
+  const filteredPackages = state.packages.filter(pkg =>
+    pkg.packageName
+      .toLowerCase()
+      .includes(state.packageSearch.toLowerCase())
+  );
 
   // Pre-fill client data when available
   useEffect(() => {
@@ -190,10 +208,12 @@ export default function AddBookingComponent({ onCancel, packageId }: AddBookingC
       try {
         const { approvedDates, packages, addOns, initialUnavailableDates } = await fetchInitialBookingData();
 
+        console.log('Fetch Initial Data:', { approvedDates, packages, addOns, initialUnavailableDates });
+
         // Find the selected package if packageId is provided
-        const selectedPackage = packageId 
-          ? packages.find(pkg => pkg.id.toString() === packageId)?.packageName || ""
-          : "";
+        const selectedPackage = packageId
+        ? packages.find(pkg => pkg.id.toString() === packageId) ?? null
+        : null
         
         setState(prev => ({
           ...prev,
@@ -441,6 +461,10 @@ export default function AddBookingComponent({ onCancel, packageId }: AddBookingC
     if (!sanitizedData.bookingAddress.trim()) newErrors.booking_address = 'Booking address is required';
     if (!state.selectedPackage) newErrors.package_id = 'Please select a package';
 
+    if (formData.categoryType === '') {
+      newErrors.category_type = 'Event category is required';
+    }
+
     // Update state with sanitized data and errors
     setState(prev => ({
       ...prev,
@@ -494,10 +518,11 @@ export default function AddBookingComponent({ onCancel, packageId }: AddBookingC
     }
   };
 
-  const handlePackageSelect = (packageName: string) => {
+  const handlePackageSelect = (pkg: PackageProps) => {
     setState(prev => ({
       ...prev,
-      selectedPackage: packageName,
+      selectedPackage: pkg,
+      packageSearch: pkg.packageName,
       isPackageDropdownOpen: false,
       errors: {
         ...prev.errors,
@@ -532,7 +557,12 @@ export default function AddBookingComponent({ onCancel, packageId }: AddBookingC
     setState(prev => ({ ...prev, loading: { ...prev.loading, submitting: true } }));
 
     try {
-      await submitBooking(state.formData, state.selectedPackage, state.selectedAddOns, state.packages);
+      await submitBooking(
+        state.formData,
+        state.selectedPackage!.id.toString(),
+        state.selectedAddOns,
+        state.packages
+      );
       const cleanFirstName = state.formData.firstName.replace(/\s/g, '');
       const cleanLastName = state.formData.lastName.replace(/\s/g, '');
 
@@ -568,16 +598,45 @@ export default function AddBookingComponent({ onCancel, packageId }: AddBookingC
         });
       }
       
-      
       window.location.href = paths.booking;
     } catch (err: any) {
+      let newErrors: Record<string, string> = {};
+      
+      // Check if the error contains field-specific validation errors
+      if (err.errors) {
+        // Convert the error object to match our error state structure
+        Object.keys(err.errors).forEach(key => {
+          // Take the first error message if it's an array
+          const errorMessage = Array.isArray(err.errors[key]) 
+            ? err.errors[key][0] 
+            : err.errors[key];
+          
+          // Map backend field names to frontend field names if needed
+          const frontendFieldName = 
+            key === 'first_name' ? 'firstName' :
+            key === 'last_name' ? 'lastName' :
+            key === 'contact_no' ? 'contactNumber' :
+            key === 'event_name' ? 'eventName' :
+            key === 'booking_address' ? 'bookingAddress' :
+            key;
+          
+          newErrors[frontendFieldName] = errorMessage;
+          newErrors[key] = errorMessage; // Also keep the backend field name for compatibility
+        });
+      } else {
+        // Fallback to general error message if no field-specific errors
+        setState(prev => ({
+          ...prev,
+          error: {
+            ...prev.error,
+            form: err instanceof Error ? err.message : 'Booking failed'
+          }
+        }));
+      }
+
       setState(prev => ({
         ...prev,
-        error: {
-          ...prev.error,
-          form: err instanceof Error ? err.message : 'Booking failed'
-        },
-        errors: err.errors || {},
+        errors: newErrors,
         loading: {
           ...prev.loading,
           submitting: false
@@ -683,7 +742,7 @@ export default function AddBookingComponent({ onCancel, packageId }: AddBookingC
           onSubmit={handleSubmit}
         >
           <Box 
-            className="form-wrapper"
+            className="form-wrapper add-account"
             style={{
               flexDirection: userRole === 'Client' ? 'column' : 'row'
             }}
@@ -697,6 +756,35 @@ export default function AddBookingComponent({ onCancel, packageId }: AddBookingC
                 width: userRole === 'Client' ? '100%' : '50%', 
               }}
             >
+              <Box className="row col-1">
+                <FilterBy
+                  options={categoryTypeOptions}
+                  selectedValue={state.formData.categoryType}
+                  onFilterChange={(value) =>
+                    setState(prev => ({
+                      ...prev,
+                      formData: {
+                        ...prev.formData,
+                        categoryType: value
+                      },
+                      errors: {
+                        ...prev.errors,
+                        category_type: ''
+                      }
+                    }))
+                  }
+                  label="Event Category"
+                />
+                {state.errors.category_type && (
+                  <Typography
+                    color="error"
+                    variant="caption"
+                    sx={{ mt: 0.5, display: 'block' }}
+                  >
+                    {state.errors.category_type}
+                  </Typography>
+                )}
+              </Box>
               {state.loading.user ? (
                 <CircularProgress size={24} sx={{ mt: 2 }} />
               ) : (
@@ -742,74 +830,101 @@ export default function AddBookingComponent({ onCancel, packageId }: AddBookingC
 
               <Box className="form-group">
                 <label className="form-label">
-                  Package:
-                  <span style={{ color: 'red' }}>*</span>
+                  Package <span style={{ color: 'red' }}>*</span>
                 </label>
-                {state.loading.packages ? (
-                  <CircularProgress size={20} />
-                ) : state.error.packages ? (
-                  <Alert severity="error">{state.error.packages}</Alert>
-                ) : (
-                  <>
-                    <Box 
-                      className="package-dropdown"
-                      onClick={() => setState(prev => ({ ...prev, isPackageDropdownOpen: !prev.isPackageDropdownOpen }))}
-                      sx={{
-                        cursor: 'pointer',
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        padding: '8px 12px',
-                        border: state.errors.package_id ? '1px solid #d32f2f' : '1px solid #ccc',
-                        borderRadius: '4px'
-                      }}
-                    >
-                      <Typography component="span">
-                        {state.selectedPackage || "Select a package"}
-                      </Typography>
-                      <Image
-                        width={12}
-                        height={7}
-                        src={icons.angleDown}
-                        alt="dropdown"
-                        style={{
-                          transform: state.isPackageDropdownOpen ? 'rotate(180deg)' : 'none',
-                          transition: 'transform 0.2s ease'
-                        }}
-                      />
-                    </Box>
 
-                    {state.errors.package_id && (
-                      <Typography color="error" variant="caption" sx={{ mt: 1, display: 'block' }}>
-                        {state.errors.package_id}
+                {/* Input */}
+                <Box
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    border: state.errors.package_id ? '1px solid #d32f2f' : '1px solid #ccc',
+                    borderRadius: '4px',
+                    padding: '8px 12px',
+                    cursor: 'text',
+                    backgroundColor: '#f7faf5'
+                  }}
+                  onClick={() =>
+                    setState(prev => ({
+                      ...prev,
+                      isPackageDropdownOpen: true
+                    }))
+                  }
+                >
+                  <TextField
+                    placeholder="Search package..."
+                    variant="standard"
+                    className='dropdown-search'
+                    fullWidth
+                    value={state.packageSearch}
+                    onChange={(e) =>
+                      setState(prev => ({
+                        ...prev,
+                        packageSearch: e.target.value,
+                        isPackageDropdownOpen: true
+                      }))
+                    }
+                    InputProps={{ disableUnderline: true }}
+                    sx={{ background: "none", border: "none" }}
+                  />
+
+                  <Image
+                    src={icons.angleDown}
+                    alt="dropdown"
+                    width={12}
+                    height={7}
+                    style={{
+                      marginLeft: '8px',
+                      transform: state.isPackageDropdownOpen ? 'rotate(180deg)' : 'none'
+                    }}
+                  />
+                </Box>
+
+                {/* Dropdown */}
+                {state.isPackageDropdownOpen && (
+                  <Box
+                    sx={{
+                      border: '1px solid #ccc',
+                      borderRadius: '4px',
+                      marginTop: '4px',
+                      maxHeight: '250px',
+                      overflowY: 'auto'
+                    }}
+                  >
+                    {filteredPackages.length > 0 ? (
+                      filteredPackages.map(pkg => (
+                        <Box
+                          key={pkg.id}
+                          onClick={() => handlePackageSelect(pkg)}
+                          sx={{
+                            padding: '12px',
+                            cursor: 'pointer',
+                            '&:hover': { backgroundColor: '#f5f5f5' }
+                          }}
+                        >
+                          <Typography fontWeight={600}>
+                            {pkg.packageName}
+                          </Typography>
+                          <Typography variant="body2">
+                            {pkg.package_details}
+                          </Typography>
+                          <Typography fontWeight={600}>
+                            {formatCurrency(pkg.package_price)}
+                          </Typography>
+                        </Box>
+                      ))
+                    ) : (
+                      <Typography sx={{ p: 2 }} color="text.secondary">
+                        No packages found
                       </Typography>
                     )}
+                  </Box>
+                )}
 
-                    {state.isPackageDropdownOpen && (
-                      <Box 
-                        className="dropdown-options"
-                      >
-                        {state.packages.map((pkg) => (
-                          <Box
-                            className="dropdown-item"
-                            key={pkg.id}
-                            onClick={() => handlePackageSelect(pkg.packageName)}
-                            sx={{
-                              padding: '12px',
-                              cursor: 'pointer',
-                              '&:hover': {
-                                backgroundColor: '#f5f5f5'
-                              }
-                            }}
-                          >
-                            <Typography component='p' className='package-name'><strong>{pkg.packageName}</strong></Typography>
-                            <Typography component='p' className='package-details'>{pkg.package_details}</Typography>
-                            <Typography component='p' className='package-price'><strong>{formatCurrency(pkg.package_price)}</strong></Typography>
-                          </Box>
-                        ))}
-                      </Box>
-                    )}
-                  </>
+                {state.errors.package_id && (
+                  <Typography color="error" variant="caption">
+                    {state.errors.package_id}
+                  </Typography>
                 )}
               </Box>
 

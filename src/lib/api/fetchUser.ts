@@ -3,7 +3,7 @@ import { User, UserRole, UserProfileFormData } from '@/types/user'
 import { ensureCsrfToken } from '@/utils/crfToken';
 
 const isUserRole = (role: any): role is UserRole => {
-  return typeof role === 'string' && ['Owner', 'Secretary', 'Editor', 'Photographer', 'Client'].includes(role);
+  return typeof role === 'string' && ['Owner', 'Secretary', 'Editor', 'Photographer', 'Client', 'Coordinator'].includes(role);
 };
 
 export async function updateUserProfile(formData: UserProfileFormData): Promise<User> {

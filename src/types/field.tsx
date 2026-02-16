@@ -39,6 +39,11 @@ export interface ModalSection {
     checkFields?: CheckboxField[];
 }
 
+export interface CategoryProps {
+    id: string;
+    category_name: string;
+}
+
 export interface PackageProps {
     id: number;
     packageName: string;

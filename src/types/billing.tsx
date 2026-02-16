@@ -1,4 +1,5 @@
 export interface FetchBillingsParams {
+  category?: string;
   start_year: number;
   end_year: number;
   page?: number;
@@ -25,6 +26,8 @@ export interface Billing {
   id: number;
   booking_id: number;
   event_name: string;
+  category: string;
+  event_date: string;
   customer_name: string;
   package: string;
   add_ons: AddonProps[];

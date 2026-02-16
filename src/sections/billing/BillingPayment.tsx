@@ -23,7 +23,7 @@ export default function BillingPayment({ billingId }: BillingDetailsProps): Reac
     const { user } = useAuth();
     
     // Memoize derived values
-    const isClient = useMemo(() => user?.user_role === 'Client', [user]);
+    const isClient = useMemo(() => user?.user_role === 'Client' || user?.user_role === 'Coordinator', [user]);
     const isPartial = useMemo(() => billing?.status.toLowerCase() === 'partial', [billing]);
 
     const loadBillingDetails = useCallback(async () => {

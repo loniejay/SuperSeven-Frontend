@@ -48,7 +48,7 @@ export function SearchBox({
   };
 
   return (
-    <Search className={className}>
+    <Search className={'search-box ' + className}>
       <input
         type="text"
         placeholder={placeholder}

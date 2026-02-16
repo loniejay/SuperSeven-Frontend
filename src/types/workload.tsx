@@ -89,6 +89,7 @@ export const statusMap: Record<DeliverableStatus, string> = {
 export interface Employee {
   id: number;
   full_name: string;
+  workload_count: number;
   user_role: string;
   selected?: boolean;
 }

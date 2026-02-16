@@ -79,7 +79,7 @@ export async function middleware(request: NextRequest) {
   }
 
   // Client: Specific allowed routes
-  if (role === 'Client') {
+  if (role === 'Client' || role === 'Coordinator') {
     const allowedPaths = ['/', '/booking', '/package', '/billing', '/settings']
     const isAllowed = allowedPaths.some(
       path => pathname === path || pathname.startsWith(`${path}/`)

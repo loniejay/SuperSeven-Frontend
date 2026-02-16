@@ -5,7 +5,7 @@ import { User, AuthResponse, UserRole } from '@/types/user'
 import { fetchCurrentUser } from '@/lib/api/fetchUser'
 
 const isUserRole = (role: string | undefined): role is UserRole => {
-  return role ? ['Owner', 'Secretary', 'Editor', 'Photographer', 'Client'].includes(role) : false
+  return role ? ['Owner', 'Secretary', 'Editor', 'Photographer', 'Client', 'Coordinator'].includes(role) : false
 }
 
 interface AuthContextType {
@@ -67,7 +67,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       });
 
       // Force full page reload to clear any residual state
+
       window.location.href = paths.login;
+      setLoading(true);
     } catch (error) {
       console.error('Logout failed:', error);
       // Ensure state is cleared even if backend fails
@@ -76,6 +78,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       window.location.href = paths.login;
     } finally {
       setIsLoggingOut(false);
+      setLoading(false);
     }
   }, [clearAuthCookies]);
 
@@ -195,6 +198,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           allowed => path === allowed || path.startsWith(`${allowed}/`)
         );
       case 'Client':
+        return ['/', '/booking', '/package', '/billing', '/settings'].some(
+          allowed => path === allowed || path.startsWith(`${allowed}/`)
+        );
+      case 'Coordinator':
         return ['/', '/booking', '/package', '/billing', '/settings'].some(
           allowed => path === allowed || path.startsWith(`${allowed}/`)
         );

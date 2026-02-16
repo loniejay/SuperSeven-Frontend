@@ -17,7 +17,7 @@ export const bigEvents = [
     {
         id: 2,
         src: '/assets/adminHome/image13.jpg',
-        title: 'Noel and Jonalisa Wedding',
+        title: 'Jairus Caberte Wedding',
         description: 'Big Day Wedding',
         date: 'September 5, 2023',
         variations: [
@@ -58,7 +58,7 @@ export const regularEvents = [
     },
     {
         src: '/assets/adminHome/solo-beach.png',
-        title: 'Harold and Lonie Prenup',
+        title: 'Amot and Lonie Prenup',
         variations: [
             '/assets/adminHome/image21.jpg',
             '/assets/adminHome/image20.jpg',

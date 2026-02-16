@@ -35,10 +35,10 @@ export const fetchPackages = async (
     // Get user from localStorage to determine role
     const userString = localStorage.getItem('user');
     const user = userString ? JSON.parse(userString) : null;
-    const isClient = user?.user_role === 'Client';
+  const isClient = ['Client', 'Coordinator'].includes(user?.user_role ?? '');
 
     let url = isClient 
-        ? '/api/customer/packages'
+        ? `/api/customer/packages`
         : `/api/packages?search[value]=${encodeURIComponent(searchTerm)}&page=${page}&per_page=${perPage}`;
 
     const response = await fetch(url, {
@@ -68,10 +68,10 @@ export const fetchAddons = async (
     // Get user from localStorage to determine role
     const userString = localStorage.getItem('user');
     const user = userString ? JSON.parse(userString) : null;
-    const isClient = user?.user_role === 'Client';
+  const isClient = ['Client', 'Coordinator'].includes(user?.user_role ?? '');
 
     let url = isClient 
-        ? '/api/customer/addons'
+        ? `/api/customer/addons`
         : `/api/addons?search[value]=${encodeURIComponent(searchTerm)}&page=${page}&per_page=${perPage}`;
 
     const response = await fetch(url, {

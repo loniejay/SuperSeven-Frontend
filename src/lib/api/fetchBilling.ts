@@ -4,9 +4,17 @@ import { ensureCsrfToken } from '@/utils/crfToken';
 export const fetchBillings = async ({ 
   start_year, 
   end_year,
+  category,
   page = 1,
   perPage  = 10
-}: FetchBillingsParams): Promise<{ data: Billing[], total: number }> => {
+}: FetchBillingsParams): Promise<{ 
+  data: Billing[], 
+  total: number,
+  extra?: {
+    total_bill: string;
+    total_balance: string;
+  } 
+}> => {
   try {
     const accessToken = localStorage.getItem('access_token');
     if (!accessToken) throw new Error('No access token found');
@@ -14,12 +22,24 @@ export const fetchBillings = async ({
     // Get user from localStorage to determine role
     const userString = localStorage.getItem('user');
     const user = userString ? JSON.parse(userString) : null;
-    const isClient = user?.user_role === 'Client';
+  const isClient = ['Client', 'Coordinator'].includes(user?.user_role ?? '');
 
-    const fetchBillingsUrl = isClient 
-      ? `/api/customer/billings?search[value]=&start_year=${start_year}&end_year=${end_year}&page=${page}&per_page=${perPage}`
-      : `/api/billings/?search[value]=&start_year=${start_year}&end_year=${end_year}&page=${page}&per_page=${perPage}`;
-        
+    const params = new URLSearchParams({
+      'search[value]': '',
+      start_year: start_year.toString(),
+      end_year: end_year.toString(),
+      page: page.toString(),
+      per_page: perPage.toString()
+    });
+
+    if (category && category !== '') {
+      params.append('category', category);
+    }
+
+    const fetchBillingsUrl = isClient
+      ? `/api/customer/billings?${params.toString()}`
+      : `/api/billings?${params.toString()}`;
+
     const response = await fetch(fetchBillingsUrl, {
       headers: {
         'Authorization': `Bearer ${accessToken}`
@@ -35,7 +55,8 @@ export const fetchBillings = async ({
     if (result.status && result.data) {
       return {
         data: result.data.data,
-        total: result.data.meta.total
+        total: result.data.meta.total,
+        extra: result.data.extra
       };
     }
     throw new Error(result.message || 'Failed to fetch billing data');

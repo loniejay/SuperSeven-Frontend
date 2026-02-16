@@ -137,7 +137,6 @@ export const FeedbackPostWrapper = styled(Box)`
     justify-content: center;
     gap: 50px;
     padding: 100px 0;
-    padding-top: 50px;
 `;
 
 export const AnimatedBox = styled(Box)<{ delay: number }>`
@@ -447,8 +446,8 @@ export const BottomImageContent = styled(Box)`
     }
 
     img{
-        width: 100%;
-        height: 100%;
+        // width: 100%;
+        // height: 100%;
         object-fit: cover;
         border-radius: 19px;
     }

@@ -6,7 +6,7 @@ export const Filter = styled(Box)`
 
     label, select {
         border: 0.6px solid #D5D5D5;
-        background: #F9F9FB;
+        background: #FFFFFF;
         padding: 20px 30px;
         font-family: Nunito Sans;
         font-weight: 700;
@@ -18,13 +18,13 @@ export const Filter = styled(Box)`
     }
 
     label {
-        border-radius: 10px 0px 0px 10px;
+        border-radius: 4px 0px 0px 4px;
     }
 
     select {
         appearance: none;
         border-left: none;
-        border-radius: 0px 10px 10px 0px;
+        border-radius: 0px 4px 4px 0px;
         width: 100%;
         min-width: 180px;
         cursor: pointer;

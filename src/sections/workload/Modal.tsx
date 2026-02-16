@@ -503,6 +503,7 @@ export default function EditModal({ open, onClose, eventData, onUpdateSuccess }:
                                         <label htmlFor={`employee-${employee.id}`}>
                                             {employee.full_name}
                                             <span> ({employee.user_role})</span>
+                                            <span>({employee.workload_count})</span>
                                         </label>
                                     </Box>
                                 </Box>

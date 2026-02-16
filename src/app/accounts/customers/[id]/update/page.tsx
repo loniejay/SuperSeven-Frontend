@@ -5,10 +5,11 @@ import { useRouter } from 'next/navigation';
 import { fetchClientById } from '@/lib/api/fetchAccount';
 import { useEffect, useState, use } from 'react';
 import { User } from '@/types/user';
-import { Box } from '@mui/material';
+import { Box, CircularProgress } from '@mui/material';
 import { NavBar } from '@/components/SideBar';
 import { TopBar } from '@/components/topbar';
-import  Preloader from '@/components/Preloader';
+import { useLoading } from '@/context/LoadingContext';
+import Preloader from '@/components/Preloader';
 
 export default function UpdateCustomerPage({
   params,
@@ -16,8 +17,8 @@ export default function UpdateCustomerPage({
   params: Promise<{ id: string }>;
 }) {
   const router = useRouter();
-  const [loading, setLoading] = useState(true);
   const [account, setAccount] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const { id } = use(params);
@@ -28,7 +29,7 @@ export default function UpdateCustomerPage({
         const data = await fetchClientById(id);
         setAccount(data);
       } catch (err) {
-        console.error('Error loading account:', err); // Debugging line
+        console.error('Error loading account:', err);
         setError('Failed to load employee data');
       } finally {
         setLoading(false);
@@ -36,11 +37,9 @@ export default function UpdateCustomerPage({
     };
 
     loadAccount();
-
   }, [id]);
 
   if (loading) return <Preloader />;
-
   if (error) return <div>{error}</div>;
 
   return (

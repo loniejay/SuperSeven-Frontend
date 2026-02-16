@@ -40,7 +40,7 @@ export function DetailsSection({ billing }: { billing: Billing }) {
 // Component for Assessment section with conditional rendering
 export function AssessmentSection({ billing, isPartial }: { billing: Billing; isPartial: boolean }) {
   const { user } = useAuth();
-  const isClient = user?.user_role === 'Client';
+  const isClient = ['Client', 'Coordinator'].includes(user?.user_role ?? '');
 
   return (
     <Assessment className={`assessments ${isClient ? 'client' : ''}`}>
@@ -68,7 +68,7 @@ export function AssessmentSection({ billing, isPartial }: { billing: Billing; is
 export function BillingDetailsComponent({ billing }: { billing: Billing }): React.JSX.Element {
   const isPartial = billing.status.toLowerCase() === 'partial';
   const { user } = useAuth();
-  const isClient = user?.user_role === 'Client';
+  const isClient = ['Client', 'Coordinator'].includes(user?.user_role ?? '');
   
   return (
     <BillingCard>

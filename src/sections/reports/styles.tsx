@@ -99,7 +99,7 @@ export const YearBox = styled(Box)`
 `;
 
 export const DropdownList = styled(Box)`
-    max-width: 300px;
+    max-width: 150px;
     width: 100%;
     height: auto;
     box-shadow: 0px 13px 61px 0px #A9A9A95D;
@@ -109,8 +109,9 @@ export const DropdownList = styled(Box)`
     display: flex;
     flex-direction: column;
     position: absolute;
-    top: 40px;
-    right: 0;
+    top: 35px;
+    left: 0px;
+    z-index: 10;
 `;
 
 export const SelectBox = styled(Box)`

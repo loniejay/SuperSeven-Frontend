@@ -171,6 +171,7 @@ export function NavBar(): React.JSX.Element {
             if (item.label === 'Settings' || item.label === 'Logout') return true;
 
             switch (user.user_role) {
+                case 'Coordinator':
                 case 'Client':
                     return ['Home', 'Booking', 'Package', 'Billing'].includes(item.label);
                 case 'Photographer':

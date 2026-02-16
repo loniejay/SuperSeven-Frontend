@@ -1,10 +1,16 @@
 'use client';
 
 import React from 'react';
-import { Heading } from "./styles";
+import { Heading, TotalBilling, BillingBox } from "./styles";
 import { Box, Button, Typography } from "@mui/material";
 import { paths } from '@/paths';
 import { usePathname } from 'next/navigation';
+import Billing from '@/app/billing/page';
+
+type HeadingProps = {
+  totalBilling?: number;
+  totalBalance?: number;
+};
 
 // Create a mapping between paths and their display titles
 const pathTitles: Record<string, string> = {
@@ -19,8 +25,17 @@ const pathTitles: Record<string, string> = {
   [paths.settings]: "Settings"
 };
 
-export function HeadingComponent(): React.JSX.Element {
+export function HeadingComponent({
+  totalBilling = 0,
+  totalBalance = 0
+}): React.JSX.Element {
   const pathname = usePathname();
+
+  const formatCurrency = (value: number) =>
+  value.toLocaleString('en-PH', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  });
   
   // Check if path starts with /accounts
   if (pathname.startsWith(paths.accounts)) {
@@ -55,13 +70,23 @@ export function HeadingComponent(): React.JSX.Element {
     );
   }
 
-  //Check if path starts with /workload
+  //Check if path starts with /billing
   if (pathname.startsWith(paths.billing)) {
     return (
       <Heading className="heading">
         <Typography component="h2" className="title">
           {pathTitles[paths.billing]}
         </Typography>
+        <TotalBilling>
+          <BillingBox>
+            <Typography component='h3'>Total Billing:</Typography>
+            <Typography component='span'><Typography>&#8369;</Typography> {formatCurrency(totalBilling)}</Typography>
+          </BillingBox>
+          <BillingBox>
+            <Typography component='h3'>Total Balance:</Typography>
+            <Typography component='span'><Typography>&#8369;</Typography> {formatCurrency(totalBalance)}</Typography>
+          </BillingBox>
+        </TotalBilling>
       </Heading>
     );
   }

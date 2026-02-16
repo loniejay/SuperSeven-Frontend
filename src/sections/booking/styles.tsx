@@ -181,6 +181,59 @@ export const BookingWrapper = styled(Box)`
         .form-wrapper{
             display: flex;
             gap: 20px;
+            
+            &.add-account {
+
+                .form-row {
+                    .row {
+                        .filter {
+                            width: 100%;
+                            display: flex;
+                            flex-direction: column;
+                            gap: 10px;
+
+                            label {
+                                border: none;
+                                border-radius: 0px;
+                                padding: 0;
+                                background: transparent;
+                                font-weight: 500;
+                                font-size: 14px;
+                                line-height: 100%;
+                                letter-spacing: 0px;
+                                color: #ADADAD;
+                            }
+
+                            .select-list {
+                                max-width: 200px;
+
+                                select {
+                                    max-width: 200px;
+                                    border-radius: 4px;
+                                    background: #F7FAF5;
+                                    border: 0.6px solid #D5D5D5;
+                                    font-weight: 500;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            .form-row {
+                .form-group {
+                    div {
+                        .dropdown-search {
+                            div {
+                                input {
+                                    border: none;
+                                    padding: 0 1px;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
 
             @media (max-width: 900px) {
                 flex-direction: column !important;

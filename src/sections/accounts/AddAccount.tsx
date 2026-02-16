@@ -49,6 +49,8 @@ export function RegisterAccount({
     let accountUserType = '4';
     if (account?.user_role === 'Owner') {
         accountUserType = '3';
+    } else if (account?.user_role === 'Coordinator') {
+        accountUserType = '2';
     } else if (account?.user_role === 'Secretary') {
         accountUserType = '4';
     } else if (account?.user_role === 'Photographer') {
@@ -74,6 +76,7 @@ export function RegisterAccount({
     ];
 
     const userTypeOptions = [
+        { value: '2', label: 'Coordinator' },
         { value: '4', label: 'Secretary' },
         { value: '5', label: 'Photographer' },
         { value: '6', label: 'Editor' },

@@ -14,18 +14,31 @@ import {
 import { ReportData } from '@/types/reports';
 
 interface ReportsTableProps {
-    data: ReportData[];
+    data: any[];
     loading: boolean;
     error: string | null;
+    type?: 'booking' | 'billing';
 }
 
-export function ReportsTable({ data, loading, error }: ReportsTableProps) {
+export function ReportsTable({ data, loading, error, type = 'booking' }: ReportsTableProps) {
 
-    const tableHeader = [
+    const bookingHeader = [
         'Booking Date',
         'Event Name',
-        'Client Name'
+        'Client Name',
+        'Package',
+        'Category'
     ];
+
+    const billingHeader = [
+        'Booking Date',
+        'Event Name',
+        'Status',
+        'Total Amount',
+        'Balance'
+    ];
+
+    const tableHeader = type === 'billing' ? billingHeader : bookingHeader;
 
     if (error) {
         return (
@@ -78,7 +91,7 @@ export function ReportsTable({ data, loading, error }: ReportsTableProps) {
                 <TableHead>
                     <TableRow>
                         {tableHeader.map((header, index) => (
-                            <TableCell key={index} align="center"><b>{header}</b></TableCell>
+                            <TableCell key={index} align="left"><b>{header}</b></TableCell>
                         ))}
                     </TableRow>
                 </TableHead>
@@ -86,14 +99,28 @@ export function ReportsTable({ data, loading, error }: ReportsTableProps) {
                     {data.length > 0 ? (
                         data.map((row) => (
                             <TableRow key={row.id}>
-                                <TableCell align="center">{row.booking_date}</TableCell>
-                                <TableCell align="center">{row.event_name}</TableCell>
-                                <TableCell align="center">{row.customer_name}</TableCell>
+                                {type === 'billing' ? (
+                                    <>
+                                        <TableCell>{row.booking_date}</TableCell>
+                                        <TableCell>{row.event_name}</TableCell>
+                                        <TableCell>{row.billing_status}</TableCell>
+                                        <TableCell>₱ {row.total_amount}</TableCell>
+                                        <TableCell>₱ {row.balance_due}</TableCell>
+                                    </>
+                                ) : (
+                                    <>
+                                        <TableCell>{row.booking_date}</TableCell>
+                                        <TableCell>{row.event_name}</TableCell>
+                                        <TableCell>{row.customer_name}</TableCell>
+                                        <TableCell>{row.package}</TableCell>
+                                        <TableCell>{row.category}</TableCell>
+                                    </>
+                                )}
                             </TableRow>
                         ))
                     ) : (
                         <TableRow>
-                            <TableCell colSpan={4} align="center">
+                            <TableCell colSpan={tableHeader.length}>
                                 No data available
                             </TableCell>
                         </TableRow>

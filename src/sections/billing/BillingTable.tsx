@@ -14,6 +14,7 @@ import {
 import { Billing } from '@/types/billing';
 import { formatAmount, getAddonNames } from '@/utils/billing';
 import { useAuth } from '@/context/AuthContext';
+import { format, parseISO } from 'date-fns';
 
 interface BillingTableProps {
     billingData: Billing[];
@@ -23,14 +24,17 @@ interface BillingTableProps {
 
 export default function BillingTable({ billingData, onView, isLoading }: BillingTableProps) {
     const { user } = useAuth();
-    const isClient = user?.user_role === 'Client';
+  const isClient = ['Client', 'Coordinator'].includes(user?.user_role ?? '');
 
     const tableHeader = [
         'ID',
         'EVENT NAME',
+        'CATEGORY',
+        'EVENT DATE',
         ...(isClient ? [] : ['CLIENT']),
         'PACKAGE',
         'ADD-ON',
+        'TOTAL AMOUNT',
         'BALANCE',
         'STATUS',
         'ACTION'
@@ -61,7 +65,10 @@ export default function BillingTable({ billingData, onView, isLoading }: Billing
                         <TableRow key={index}>
                             <TableCell><Skeleton variant="text" /></TableCell>
                             <TableCell><Skeleton variant="text" /></TableCell>
+                            <TableCell><Skeleton variant="text" /></TableCell>
                             {!isClient && <TableCell><Skeleton variant="text" /></TableCell>}
+                            <TableCell><Skeleton variant="text" /></TableCell>
+                            <TableCell><Skeleton variant="text" /></TableCell>
                             <TableCell><Skeleton variant="text" /></TableCell>
                             <TableCell><Skeleton variant="text" /></TableCell>
                             <TableCell><Skeleton variant="text" /></TableCell>
@@ -82,9 +89,12 @@ export default function BillingTable({ billingData, onView, isLoading }: Billing
                             <TableRow key={billing.id} hover>
                                 <TableCell>{billing.booking_id}</TableCell>
                                 <TableCell>{billing.event_name}</TableCell>
+                                <TableCell>{billing.category}</TableCell>
+                                <TableCell> {format(parseISO(billing.event_date), 'MMMM dd, yyyy')}</TableCell>
                                 {!isClient && <TableCell>{billing.customer_name}</TableCell>}
                                 <TableCell>{billing.package}</TableCell>
                                 <TableCell>{getAddonNames(billing.add_ons) || 'None'}</TableCell>
+                                <TableCell>{formatAmount(billing.total_amount)}</TableCell>
                                 <TableCell>{formatAmount(billing.balance)}</TableCell>
                                 <TableCell className={`status ${billing.status.toLowerCase()}`}>
                                     <Typography component="span">

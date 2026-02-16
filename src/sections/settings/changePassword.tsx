@@ -193,7 +193,7 @@ export function ChangePasswordComponent(): React.JSX.Element {
                                                 edge="end"
                                                 aria-label="toggle password visibility"
                                             >
-                                                {showPasswords.confirm ? <VisibilityOffIcon /> : <VisibilityIcon />}
+                                                {showPasswords.confirm ? <VisibilityIcon /> : <VisibilityOffIcon />}
                                             </IconButton>
                                         </InputAdornment>
                                     ),

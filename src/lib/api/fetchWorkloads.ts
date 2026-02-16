@@ -366,7 +366,7 @@ export const showConfirmationDialog = async (): Promise<boolean> => {
 
 export const showValidationError = async (message: string): Promise<void> => {
   await Swal.fire({
-    title: 'Validation Error',
+    title: 'Error!',
     text: message,
     icon: 'error',
     confirmButtonColor: '#2BB673',

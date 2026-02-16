@@ -30,7 +30,7 @@ export const fetchBookings = async (month: number, year: number): Promise<Bookin
   // Get user from localStorage
   const userString = localStorage.getItem('user');
   const user = userString ? JSON.parse(userString) : null;
-  const isClient = user?.user_role === 'Client';
+  const isClient = ['Client', 'Coordinator'].includes(user?.user_role ?? '');
 
   // Choose endpoint based on user role
   const endpoint = isClient 
@@ -106,6 +106,7 @@ export const fetchBookings = async (month: number, year: number): Promise<Bookin
 
     return {
       id: booking.id,
+      billing_id: booking.billing_id,
       start: startDate,
       end: endDate,
       booking_date: bookingDate,
@@ -279,7 +280,7 @@ export const cancelBooking = async (id: number): Promise<void> => {
   // Get user from localStorage to determine role
   const userString = localStorage.getItem('user');
   const user = userString ? JSON.parse(userString) : null;
-  const isClient = user?.user_role === 'Client';
+  const isClient = ['Client', 'Coordinator'].includes(user?.user_role ?? '');
 
   const endpoint = isClient 
       ? `/api/customer/bookings/${id}/delete`
@@ -449,10 +450,13 @@ export const submitBooking = async (
     // Get user from localStorage to determine role
     const userString = localStorage.getItem('user');
     const user = userString ? JSON.parse(userString) : null;
-    const isClient = user?.user_role === 'Client';
+  const isClient = ['Client', 'Coordinator'].includes(user?.user_role ?? '');
 
-    const selectedPkg = packages.find(pkg => pkg.packageName === selectedPackage);
+    const selectedPkg = packages.find(
+      pkg => pkg.id.toString() === selectedPackage
+    );
     if (!selectedPkg) throw new Error('Please select a valid package');
+    if (!formData.categoryType) throw new Error('Event category is required');
 
     const form = new FormData();
 
@@ -468,6 +472,7 @@ export const submitBooking = async (
     form.append('formatted_booking_date', formData.formattedBookingDate || '');
     form.append('ceremony_time', formData.ceremonyTime.format('HH:mm'));
     form.append('event_name', formData.eventName);
+    form.append('category', formData.categoryType);
     form.append('booking_address', formData.bookingAddress);
     form.append('package_id', String(selectedPkg.id));
 
@@ -604,7 +609,7 @@ export const fetchBookingDetails = async (bookingId: string) => {
   // Get user from localStorage to determine role
   const userString = localStorage.getItem('user');
   const user = userString ? JSON.parse(userString) : null;
-  const isClient = user?.user_role === 'Client';
+  const isClient = ['Client', 'Coordinator'].includes(user?.user_role ?? '');
 
   // For client users, verify they own the booking
   if (isClient) {
@@ -672,7 +677,7 @@ export const updateBooking = async (
   // Get user from localStorage to determine role
   const userString = localStorage.getItem('user');
   const user = userString ? JSON.parse(userString) : null;
-  const isClient = user?.user_role === 'Client';
+  const isClient = ['Client', 'Coordinator'].includes(user?.user_role ?? '');
 
   const formData = new FormData();
   formData.append("booking_date", bookingData.booking_date);

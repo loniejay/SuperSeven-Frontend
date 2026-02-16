@@ -123,7 +123,7 @@ export async function viewFeedback(bookingId: number): Promise<FeedbackDetailRes
 
     const userString = localStorage.getItem('user');
     const user = userString ? JSON.parse(userString) : null;
-    const isClient = user?.user_role === 'Client';
+  const isClient = ['Client', 'Coordinator'].includes(user?.user_role ?? '');
   
     const endpoint = isClient
         ? `/api/customer/bookings/${bookingId}/feedback/view`

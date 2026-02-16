@@ -4,8 +4,7 @@ export const PackageButton = styled(Box)`
     width: 100%;
     height: auto;
     padding: 0 16px;
-    margin: 20px 0;
-    margin-top: auto;
+    margin: 10px 0;
 
     button {
         display: flex;
@@ -63,8 +62,6 @@ export const PackageContent = styled(Box)`
         line-height: 26px;
         color: #6E7070;
         padding-bottom: 10px;
-        width: 100%;
-        word-break: break-word;
     }
 
     .package-amount {
@@ -93,7 +90,7 @@ export const ImageContainer = styled(Box)`
 
 export const CardBox = styled(Box)`
     width: auto;
-    height: 100%;
+    height: auto;
     background: #FFFFFF;
     border: 1px solid #E0E0E0;
     border-radius: 16px;
@@ -107,14 +104,6 @@ export const CardBox = styled(Box)`
 export const LayoutContaier = styled(Box)`
     width: 100%;
     height: auto;
-
-    .swiper {
-        .swiper-wrapper {
-            .swiper-slide {
-                height: auto !important;
-            }
-        }
-    }
 
     .swiper-pagination {
         position: relative;

@@ -80,11 +80,17 @@ export function BookingComponent(): React.JSX.Element {
   });
 
   // Derived values
-  const isClient = user?.user_role === 'Client';
+  const isClient = ['Client', 'Coordinator'].includes(user?.user_role ?? '');
   const canDisableDates = user?.user_role === 'Owner' || user?.user_role === 'Secretary';
   const showAddBooking = searchParams.get('add') === 'true';
   const [isInitialLoad, setIsInitialLoad] = useState(true);
   const [isTableLoading, setIsTableLoading] = useState(false);
+
+
+  // Event handlers : redirect helper (same pattern as BillingComponent)
+  const handleViewBilling = useCallback((billingId: number) => {
+    router.push(`/billing/${billingId}`);
+  }, [router]);
 
   // Cache states
   const [cache, setCache] = useState<{
@@ -117,6 +123,8 @@ export function BookingComponent(): React.JSX.Element {
         fetchBookings(month, year),
         fetchUnavailableDateRecords(month, year)
       ]);
+
+      console.log('Fetched bookings:', bookings);
       
       setEvents(bookings);
       setUnavailableDates(unavailable);
@@ -310,6 +318,21 @@ export function BookingComponent(): React.JSX.Element {
   const handleAction = async (action: 'reschedule' | 'reject' | 'approve' | 'update' | 'cancel' | 'feedback') => {
     if (!selectedEvent) return;
 
+    if (action === 'approve') {
+      if (!selectedEvent.billing_id) {
+        Swal.fire(
+          'Missing Billing',
+          'No billing record is linked to this booking.',
+          'error'
+        );
+        return;
+      }
+
+      handleViewBilling(selectedEvent.billing_id);
+      setSelectedEvent(null);
+      return;
+    }
+
     if (action === 'reschedule') {
       setShowRescheduleForm(true);
       setRescheduleDate(dayjs(selectedEvent.start));
@@ -337,15 +360,6 @@ export function BookingComponent(): React.JSX.Element {
     );
 
     let confirmationMessage = '';
-    if (action === 'approve') {
-      if (otherPendingBookings.length > 0) {
-        confirmationMessage = "This will automatically reject other pending bookings for the same date.";
-      } else {
-        confirmationMessage = "Approving this booking will finalize the schedule.";
-      }
-    } else {
-      confirmationMessage = `This action cannot be undone.`;
-    }
 
     const confirmation = await Swal.fire({
       title: `Are you sure you want to ${action} this booking?`,
@@ -368,35 +382,6 @@ export function BookingComponent(): React.JSX.Element {
     setIsTableLoading(true);
     try {
       switch(action) {
-        case 'approve':
-          await approveBooking(selectedEvent.id);
-
-          const otherPendingBookings = events.filter(event => 
-            event.id !== selectedEvent.id &&
-            event.booking_status === 'pending' &&
-            normalizeToPHDate(new Date(event.start)).getTime() === normalizeToPHDate(selectedEvent.start).getTime()
-          );
-
-          await Promise.all(otherPendingBookings.map(booking => 
-            rejectBooking(booking.id)
-          ));
-
-          setEvents(prevEvents => 
-            prevEvents.map(event => {
-              if (event.id === selectedEvent.id) {
-                return { ...event, status: 'approved' };
-              }
-              if (otherPendingBookings.some(b => b.id === event.id)) {
-                return { ...event, status: 'unavailable' };
-              }
-              return event;
-            })
-          );
-
-          await fetchData();
-          Swal.fire('Approved!', 'The booking has been approved.', 'success');
-          break;
-
         case 'reject':
           await rejectBooking(selectedEvent.id);
           setEvents(prevEvents => 
@@ -834,7 +819,7 @@ export function BookingComponent(): React.JSX.Element {
                     </Box>
                   </Box>
                 </Box>
-                {selectedEvent.deliverable_status !== 'Completed' && (
+                {selectedEvent.deliverable_status !== 'Completed' && (                
                   <Box className={`action-btn ${selectedEvent.booking_status === 'approved' ? 'approved' : ''}`}>
                     {(() => {
                       // For non-client users (Owner/Secretary)
@@ -891,8 +876,9 @@ export function BookingComponent(): React.JSX.Element {
                         );
                       }
                       // For client users
-                      else {
-                        const isDisabled = selectedEvent.deliverable_status !== 'Completed' || selectedEvent.has_feedback;
+                        const feedbackDisabled =
+                          selectedEvent.deliverable_status !== 'Completed' ||
+                          selectedEvent.has_feedback;
 
                         return (
                           <Box sx={{ width: '100%', display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
@@ -901,13 +887,13 @@ export function BookingComponent(): React.JSX.Element {
                               <Button 
                                 className="btn cancel" 
                                 onClick={() => handleAction('feedback')}
-                                disabled={isTableLoading || isDisabled}
+                                disabled={isTableLoading || feedbackDisabled}
                                 sx={{ 
-                                  pointerEvents: isDisabled  ? 'none' : 'auto',
-                                  backgroundColor: isDisabled  ? '#cccccc' : '#2BB673 !important', 
+                                  pointerEvents: feedbackDisabled  ? 'none' : 'auto',
+                                  backgroundColor: feedbackDisabled  ? '#cccccc' : '#2BB673 !important', 
                                   color: '#fff',
                                   '&:hover': {
-                                    backgroundColor: isDisabled  ? '#cccccc' : '#155D3A !important',
+                                    backgroundColor: feedbackDisabled  ? '#cccccc' : '#155D3A !important',
                                     color: '#fff',
                                   }
                                 }}
@@ -935,7 +921,6 @@ export function BookingComponent(): React.JSX.Element {
                             )}
                           </Box>
                         );
-                      }
                     })()}
                   </Box>
                 )}
@@ -960,7 +945,7 @@ export function BookingComponent(): React.JSX.Element {
               setEvents(prevEvents => 
                 prevEvents.map(event => 
                   event.id === feedbackBooking.id 
-                    ? { ...event, feedback_submitted: true } 
+                    ? { ...event, has_feedback: true } 
                     : event
                 )
               );
@@ -968,7 +953,7 @@ export function BookingComponent(): React.JSX.Element {
               // Also update the selectedEvent if it's currently open
               setSelectedEvent(prev => 
                 prev && prev.id === feedbackBooking.id 
-                  ? { ...prev, feedback_submitted: true } 
+                  ? { ...prev, has_feedback: true } 
                   : prev
               );
 
@@ -980,7 +965,7 @@ export function BookingComponent(): React.JSX.Element {
                   container: 'swal-z-index'
                 }
               });
-              window.location.reload();
+              // window.location.reload();
               setShowFeedbackModal(false);
             } catch (err) {
               Swal.fire({

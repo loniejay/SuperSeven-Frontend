@@ -247,6 +247,10 @@ export const ActionButton = styled(Box)`
             color: #FFFFFF;
         }
     }
+
+    .search-box {
+        margin-left: 20px;
+    }
 `;
 
 export const SettingsContainer = styled(Box)`

@@ -14,6 +14,7 @@ export interface AddonProps {
 
 export interface BookingEvent {
   id: number;
+  billing_id: number;
   start: Date;
   end: Date;
   booking_date: {
@@ -37,6 +38,7 @@ export interface BookingEvent {
   has_feedback?: boolean;
   feedback?: string;
   created_at?: string;
+  // total_amount: string;
 }
 
 export interface UnavailableDate {
@@ -76,6 +78,7 @@ export interface BookingFormData {
   contactNumber: string;
   bookingAddress: string;
   ceremonyTime: Dayjs;
+  categoryType: string;
 }
 
 export interface BaseResponse {
@@ -95,6 +98,7 @@ export interface AdminBookingResponse extends BaseResponse {
 
 export interface BookingData {
   id: number;
+  billing_id: number;
   booking_date: string | {
     iso: string;
     formatted?: string;
