@@ -33,6 +33,7 @@ export function ReportsTable({ data, loading, error, type = 'booking' }: Reports
     const billingHeader = [
         'Booking Date',
         'Event Name',
+        'Client Name',
         'Status',
         'Total Amount',
         'Balance'
@@ -103,6 +104,7 @@ export function ReportsTable({ data, loading, error, type = 'booking' }: Reports
                                     <>
                                         <TableCell>{row.booking_date}</TableCell>
                                         <TableCell>{row.event_name}</TableCell>
+                                        <TableCell>{row.client_name}</TableCell>
                                         <TableCell>{row.billing_status}</TableCell>
                                         <TableCell>₱ {row.total_amount}</TableCell>
                                         <TableCell>₱ {row.balance_due}</TableCell>
@@ -111,7 +113,7 @@ export function ReportsTable({ data, loading, error, type = 'booking' }: Reports
                                     <>
                                         <TableCell>{row.booking_date}</TableCell>
                                         <TableCell>{row.event_name}</TableCell>
-                                        <TableCell>{row.customer_name}</TableCell>
+                                        <TableCell>{row.client_name}</TableCell>
                                         <TableCell>{row.package}</TableCell>
                                         <TableCell>{row.category}</TableCell>
                                     </>

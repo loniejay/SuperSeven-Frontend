@@ -11,7 +11,7 @@ export interface ReportData {
     id: number;
     booking_date: string;
     event_name: string;
-    customer_name: string;
+    client_name: string;
     package: string;
     category: string;
     total_amount: string;
@@ -36,6 +36,7 @@ export interface BillingData {
     id: number;
     booking_date: string;
     event_name: string;
+    client_name: string;
     billing_status: string;
     total_amount: string;
     balance_due: string;

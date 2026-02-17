@@ -76,7 +76,6 @@ export function DashboardPackageCard() {
     if (packages.length === 0) {
         return null;
     }
-
     return (
         <PackageLayout>
             <Box className="heading">
@@ -84,7 +83,7 @@ export function DashboardPackageCard() {
                     Packages
                 </Typography>
             </Box>
-            <LayoutContaier>
+            <LayoutContaier className="swiper-container">
                 <Swiper
                     modules={[Pagination, Autoplay]}
                     spaceBetween={30}
@@ -114,9 +113,9 @@ export function DashboardPackageCard() {
                     }}
                 >
                     {packages.map((pkg) => (
-                        <SwiperSlide key={pkg.id}>
+                        <SwiperSlide key={pkg.id} style={{ height: 'auto' }} >
                             
-                            <CardBox key={pkg.id}>
+                            <CardBox key={pkg.id} style={{ height: '100%' }}>
                                 <ImageContainer>
                                     {pkg.image_path ? (
                                         <img
@@ -141,7 +140,7 @@ export function DashboardPackageCard() {
                                         {formatCurrency(pkg.package_price)}
                                     </Typography>
                                 </PackageContent>
-                                <PackageButton>
+                                <PackageButton style={{ marginTop: 'auto' }}>
                                     <Button onClick={() => handleBookNowClick(pkg)}>
                                         <Typography className="label">
                                             Book Now
