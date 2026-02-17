@@ -25,6 +25,16 @@ export const feedBackFilterOptions = [
   { value: '3', label: 'Pending' },
 ] as const;
 
+export const categoryFilterOptions = [
+  { value: '', label: 'All Categories' },
+  { value: '0', label: 'Others' },
+  { value: '1', label: 'Birthday' },
+  { value: '2', label: 'Prenup' },
+  { value: '3', label: 'Debut' },
+  { value: '4', label: 'Wedding' },
+] as const;
+
 export type AccountFilterOption = typeof accountFilterOptions[number];
 export type WorkloadFilterOption = typeof workloadFilterOptions[number];
 export type FeedBackFilterOption = typeof feedBackFilterOptions[number];
+export type CategoryFilterOption = typeof categoryFilterOptions[number];
