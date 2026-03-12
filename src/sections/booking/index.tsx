@@ -819,11 +819,17 @@ export function BookingComponent(): React.JSX.Element {
                     </Box>
                   </Box>
                 </Box>
-                {selectedEvent.deliverable_status !== 'Completed' && (                
+                            
                   <Box className={`action-btn ${selectedEvent.booking_status === 'approved' ? 'approved' : ''}`}>
                     {(() => {
                       // For non-client users (Owner/Secretary)
                       if (!isClient) {
+
+                        // Hide buttons when completed
+                        if (selectedEvent.deliverable_status === 'Completed') {
+                          return null;
+                        }
+
                         return (
                           <>
                             {/* Reschedule button - always visible for non-clients */}
@@ -923,7 +929,7 @@ export function BookingComponent(): React.JSX.Element {
                         );
                     })()}
                   </Box>
-                )}
+                
               </>
             )}
           </Details>
