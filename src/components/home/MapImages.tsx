@@ -2,9 +2,9 @@ export const bigEvents = [
     {
         id: 1,
         src: '/assets/adminHome/top-image.png',
-        title: 'Kai and Patrick Wedding',
+        title: 'Florian and Maridel',
         description: 'Big Day Wedding',
-        date: 'September 5, 2023',
+        date: 'October 08, 2025',
         variations: [
             '/assets/adminHome/top-image.png',
             '/assets/adminHome/image1.jpg',
@@ -17,9 +17,9 @@ export const bigEvents = [
     {
         id: 2,
         src: '/assets/adminHome/image13.jpg',
-        title: 'Jairus Caberte Wedding',
+        title: 'Inna and Frédéric Wedding',
         description: 'Big Day Wedding',
-        date: 'September 5, 2023',
+        date: 'March 21, 2025',
         variations: [
             '/assets/adminHome/image13.jpg',
             '/assets/adminHome/image6.jpg',
@@ -32,9 +32,9 @@ export const bigEvents = [
     {
         id: 3,
         src: '/assets/adminHome/image20.jpg',
-        title: 'Bobby and Jane Prenup',
+        title: 'Nick and Licks Wedding',
         description: 'Big Day Wedding',
-        date: 'September 5, 2023',
+        date: 'February 27, 2025',
         variations: [
             '/assets/adminHome/image20.jpg',
             '/assets/adminHome/image11.jpg',
@@ -48,30 +48,33 @@ export const bigEvents = [
 
 export const regularEvents = [
     {
-        src: '/assets/adminHome/wedding.png',
-        title: 'Kai and Patrick Wedding',
+        src: '/assets/adminHome/image34.jpg',
+        title: 'Christian and Niezel Wedding',
         variations: [
-            '/assets/adminHome/top-image.png',
-            '/assets/adminHome/image23.jpg',
-            '/assets/adminHome/image22.jpg',
+            '/assets/adminHome/image32.jpg',
+            '/assets/adminHome/image33.jpg',
+            '/assets/adminHome/image31.jpg',
         ]
     },
     {
-        src: '/assets/adminHome/solo-beach.png',
-        title: 'Amot and Lonie Prenup',
+        src: '/assets/adminHome/image28.jpg',
+        title: 'Paul and Roselyn Prenup',
         variations: [
-            '/assets/adminHome/image21.jpg',
-            '/assets/adminHome/image20.jpg',
-            '/assets/adminHome/image19.jpg',
+            '/assets/adminHome/image26.jpg',
+            '/assets/adminHome/image29.jpg',
+            '/assets/adminHome/image25.jpg',
         ]
     },
     {
-        src: '/assets/adminHome/group-beach.png',
-        title: 'Jose Marie Birthday',
+        src: '/assets/adminHome/image36.jpg',
+        title: 'Richard and Melyn Wedding',
         variations: [
-            '/assets/adminHome/image18.jpg',
-            '/assets/adminHome/image17.jpg',
-            '/assets/adminHome/image16.jpg',
+            '/assets/adminHome/image41.jpg',
+            '/assets/adminHome/image43.jpg',
+            '/assets/adminHome/image37.jpg',
+            '/assets/adminHome/image42.jpg',
+            '/assets/adminHome/image44.jpg',
+            '/assets/adminHome/image45.jpg',
         ]
     }
 ]
